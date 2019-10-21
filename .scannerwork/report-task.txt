@@ -1,0 +1,6 @@
+projectKey=sonarqube-module-checker
+serverUrl=http://localhost:9000
+serverVersion=6.7.4.38452
+dashboardUrl=http://localhost:9000/dashboard/index/sonarqube-module-checker
+ceTaskId=AW3tsOFEOcG72SNPb4wJ
+ceTaskUrl=http://localhost:9000/api/ce/task?id=AW3tsOFEOcG72SNPb4wJ
