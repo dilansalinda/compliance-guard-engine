@@ -1,6 +1,0 @@
-
-V
-squid:S106
-"9Replace this use of System.out or System.err by a logger.(Δ‘θΖ8‹μνή-
-Wsquid:S4973	"9Use the "equals" method if value comparison was intended.(§½΅8•Γνή-
-isquid:S1764	"KCorrect one of the identical sub-expressions on both sides of operator "=="(§½΅8•Γνή-
