@@ -4,5 +4,6 @@ public class JavaSample {
 	 
 	 private String s = null;
 	 private String ss = null;
+	 private String ss = null;
  }
 }
