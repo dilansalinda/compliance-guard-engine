@@ -1,35 +1,116 @@
 package org.dilan.salinda.sonarqubedataextractor.service.impl;
 
+import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
+import org.dilan.salinda.sonarqubedataextractor.DTO.ComponentsDTO;
+import org.dilan.salinda.sonarqubedataextractor.DTO.PagingDTO;
+import org.dilan.salinda.sonarqubedataextractor.model.ProjectTag;
+import org.dilan.salinda.sonarqubedataextractor.model.Tag;
+import org.dilan.salinda.sonarqubedataextractor.repository.ProjectRepository;
+import org.dilan.salinda.sonarqubedataextractor.config.AppConfig;
 import org.dilan.salinda.sonarqubedataextractor.model.Project;
+import org.dilan.salinda.sonarqubedataextractor.repository.ProjectTagRepository;
+import org.dilan.salinda.sonarqubedataextractor.repository.TagRepository;
 import org.dilan.salinda.sonarqubedataextractor.service.ProjectDataExtractor;
-import org.dilan.salinda.sonarqubedataextractor.util.SonarQubeService;
+import org.dilan.salinda.sonarqubedataextractor.service.SonarQubeService;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Map;
-
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.*;
+import static java.util.stream.LongStream.*;
 
 @Service
+@Slf4j
 public class ProjectDataExtractorImpl implements ProjectDataExtractor {
 
+    private final AppConfig appConfig;
     private final SonarQubeService sonarQubeService;
+    private String Organization;
+    private final ProjectRepository projectRepository;
+    private final TagRepository tagRepository;
+    private final ProjectTagRepository projectTagRepository;
 
-    public ProjectDataExtractorImpl(SonarQubeService sonarQubeService) {
+    public ProjectDataExtractorImpl(AppConfig appConfig, SonarQubeService sonarQubeService, ProjectRepository projectRepository,
+                                    TagRepository tagRepository, ProjectTagRepository projectTagRepository) {
+        this.appConfig = appConfig;
         this.sonarQubeService = sonarQubeService;
+        this.projectRepository = projectRepository;
+        this.tagRepository = tagRepository;
+        this.projectTagRepository = projectTagRepository;
     }
 
     @Override
-    public List<Project> fetch() {
-       Project projects = sonarQubeService.findProjects(Map.of("Authorization","b69487a06f4e38767f00a79985366284a7e56b7f"), Map.of("organization","orgdev"));
-        System.out.println(projects);
+    @PostConstruct
+    public void init() {
+        this.Organization = appConfig.getOrganization();
+    }
 
-       return null;
+
+    @Override
+    public void fetch() {
+        of(findMaxPages(sonarQubeService.searchProjects(Map.of("organization", Organization)).getPaging()))
+                .forEach(
+                        (page) -> {
+                            List<ComponentsDTO> projectComponents =
+                                    sonarQubeService.searchProjects(Map.of("organization", Organization, "p", page, "ps", 500))
+                                            .getComponents();
+                            Save(projectComponents);
+                        }
+                );
 
     }
 
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
-    public void Save(List<Project> projects) {
+    public void Save(List<ComponentsDTO> projects) {
 
+        projects.forEach(componentsDTO -> {
+            Optional<Project> project = projectRepository.findByNameAndKey(componentsDTO.getName(), componentsDTO.getKey());
+            if (project.isPresent()) {
+                log.info("Project ({}) already exists!!", project.get().getName());
+            } else {
+                Project newProject = new Project();
+                BeanUtils.copyProperties(componentsDTO, newProject);
+                List<Tag> tags = SaveTags(componentsDTO);
+                Project savedProject = projectRepository.save(newProject);
+                saveProjectTags(tags, savedProject);
+            }
+        });
+    }
+
+    private Long findMaxPages(PagingDTO pagingDTO) {
+        return (pagingDTO.getTotal() + pagingDTO.getPageSize() - 1) / pagingDTO.getPageSize();
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<Tag> SaveTags(ComponentsDTO componentsDTO) {
+        List<Tag> tagList = new ArrayList<>();
+        componentsDTO.getTags().forEach((tag -> {
+                    Tag dbTag = tagRepository.findByName(tag);
+                    if (!Objects.isNull(dbTag)) {
+                        tagList.add(dbTag);
+                    } else {
+                        Tag newTag = new Tag();
+                        newTag.setName(tag);
+                        tagList.add(tagRepository.save(newTag));
+                        log.info("New Tag ({}) saved!", tag);
+                    }
+                })
+        );
+        return tagList;
+    }
+
+    private void saveProjectTags(List<Tag> tagList, Project project) {
+        tagList.forEach(tag -> {
+            ProjectTag projectTag = new ProjectTag();
+            projectTag.setTag(tag);
+            projectTag.setProject(project);
+
+            projectTagRepository.save(projectTag);
+            log.info("Project ({}) - Tag ({}) Saved!", project.getName(), tag.getName());
+        });
     }
 
 

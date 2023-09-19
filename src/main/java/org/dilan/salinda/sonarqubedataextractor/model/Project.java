@@ -1,19 +1,39 @@
 package org.dilan.salinda.sonarqubedataextractor.model;
 
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.data.domain.Page;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
+import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
-@Data
-public class Project {
+@Entity
+@Getter
+@Setter
+@RequiredArgsConstructor
+public class Project  {
 
-    Paging paging;
-    List<String> organizations;
-    List<Components> components;
-    List<String> facets;
+    @Id
+    @GeneratedValue(strategy=GenerationType.AUTO)
+    private Long id;
+
+    private String name;
+
+    @Column(name = "`key`")
+    private String key;
+
+    private String visibility;
+    private boolean isFavorite;
+    private boolean isNew;
+
+    @OneToOne
+    Organization organization;
+
+    @OneToMany(mappedBy = "project")
+    private Set<ProjectTag> projectTags;
+
 
 }
