@@ -1,9 +1,11 @@
 package org.dilan.salinda.sonarqubedataextractor;
 
 import org.dilan.salinda.sonarqubedataextractor.config.AppConfig;
+import org.dilan.salinda.sonarqubedataextractor.model.Organization;
+import org.dilan.salinda.sonarqubedataextractor.repository.OrganizationRepository;
 import org.dilan.salinda.sonarqubedataextractor.service.IssueDataExtractor;
-import org.dilan.salinda.sonarqubedataextractor.service.impl.ProjectDataExtractorImpl;
 import org.dilan.salinda.sonarqubedataextractor.service.SonarQubeService;
+import org.dilan.salinda.sonarqubedataextractor.service.impl.ProjectDataExtractorImpl;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -19,8 +21,11 @@ import java.util.Arrays;
 public class Application {
     private final AppConfig appConfig;
 
-    public Application(AppConfig appConfig) {
+    private final OrganizationRepository organizationRepository;
+
+    public Application(AppConfig appConfig, OrganizationRepository organizationRepository) {
         this.appConfig = appConfig;
+        this.organizationRepository = organizationRepository;
     }
 
     public static void main(String[] args) {
@@ -41,7 +46,8 @@ public class Application {
 
     @Bean
     CommandLineRunner commandLineRunner(ProjectDataExtractorImpl projectDataExtractor, IssueDataExtractor issueDataExtractor) {
-//        return args -> projectDataExtractor.fetch();
+        organizationRepository.save(new Organization(1, "dev", "orgdev"));
+        projectDataExtractor.fetch();
         return args -> issueDataExtractor.fetch(Arrays.asList("orgdev_dev-analyzer,"));
 
     }

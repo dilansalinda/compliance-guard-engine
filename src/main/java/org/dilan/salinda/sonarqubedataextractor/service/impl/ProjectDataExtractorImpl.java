@@ -3,12 +3,12 @@ package org.dilan.salinda.sonarqubedataextractor.service.impl;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.dilan.salinda.sonarqubedataextractor.DTO.ComponentsDTO;
-import org.dilan.salinda.sonarqubedataextractor.DTO.PagingDTO;
-import org.dilan.salinda.sonarqubedataextractor.model.ProjectTag;
-import org.dilan.salinda.sonarqubedataextractor.model.Tag;
-import org.dilan.salinda.sonarqubedataextractor.repository.ProjectRepository;
 import org.dilan.salinda.sonarqubedataextractor.config.AppConfig;
 import org.dilan.salinda.sonarqubedataextractor.model.Project;
+import org.dilan.salinda.sonarqubedataextractor.model.ProjectTag;
+import org.dilan.salinda.sonarqubedataextractor.model.Tag;
+import org.dilan.salinda.sonarqubedataextractor.repository.OrganizationRepository;
+import org.dilan.salinda.sonarqubedataextractor.repository.ProjectRepository;
 import org.dilan.salinda.sonarqubedataextractor.repository.ProjectTagRepository;
 import org.dilan.salinda.sonarqubedataextractor.repository.TagRepository;
 import org.dilan.salinda.sonarqubedataextractor.service.ProjectDataExtractor;
@@ -17,8 +17,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.*;
-import static java.util.stream.LongStream.*;
+
+import static java.util.stream.LongStream.of;
 import static org.dilan.salinda.sonarqubedataextractor.util.Utils.findMaxPages;
 
 @Service
@@ -32,14 +34,16 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
     private final ProjectRepository projectRepository;
     private final TagRepository tagRepository;
     private final ProjectTagRepository projectTagRepository;
+    private final OrganizationRepository organizationRepository;
 
     public ProjectDataExtractorImpl(AppConfig appConfig, SonarQubeService sonarQubeService, ProjectRepository projectRepository,
-                                    TagRepository tagRepository, ProjectTagRepository projectTagRepository) {
+                                    TagRepository tagRepository, ProjectTagRepository projectTagRepository, OrganizationRepository organizationRepository) {
         this.appConfig = appConfig;
         this.sonarQubeService = sonarQubeService;
         this.projectRepository = projectRepository;
         this.tagRepository = tagRepository;
         this.projectTagRepository = projectTagRepository;
+        this.organizationRepository = organizationRepository;
     }
 
     @Override
@@ -79,6 +83,12 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
             } else {
                 Project newProject = new Project();
                 BeanUtils.copyProperties(componentsDTO, newProject);
+                Optional<org.dilan.salinda.sonarqubedataextractor.model.Organization> organizationOptional = organizationRepository.findByKey(componentsDTO.getOrganization());
+                if (organizationOptional.isPresent()) {
+                    newProject.setOrganization(organizationOptional.get());
+                } else {
+                    log.info("Unable to find Project ({}) organization ({})!!", project.get().getName(), componentsDTO.getOrganization());
+                }
                 List<Tag> tags = SaveTags(componentsDTO);
                 Project savedProject = projectRepository.save(newProject);
                 saveProjectTags(tags, savedProject);
