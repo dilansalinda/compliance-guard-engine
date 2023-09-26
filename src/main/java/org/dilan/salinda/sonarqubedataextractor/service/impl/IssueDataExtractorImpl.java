@@ -56,7 +56,7 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
     }
 
     @Override
-    public void fetch(List<String> projects) {
+    public void fetch(List<String> projects) throws Throwable {
 
         of(findMaxPages(sonarQubeService.searchIssues(
                 Map.of("organization", organization, "componentKeys", projects),
@@ -67,12 +67,16 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
                            Map.of("organization", organization, "componentKeys", projects),
                            Map.of("authorization", authorization)).getIssues();
 
-                    save(issuesDTO);
+                    try {
+                        save(issuesDTO);
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
+                    }
                 });
     }
 
     @Override
-    public void save(List<IssuesDTO> issues) {
+    public void save(List<IssuesDTO> issues) throws Throwable {
             issues.forEach((issueObj -> {
                 Issue issue = checkIssueExists(issueObj);
                 if (Objects.isNull(issue)) {
