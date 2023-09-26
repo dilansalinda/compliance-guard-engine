@@ -1,25 +1,26 @@
 package org.dilan.salinda.sonarqubedataextractor.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-
-import java.util.Set;
-
 
 @Entity
 @Getter
 @Setter
 @RequiredArgsConstructor
-public class Organization {
+public class IssueTags {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
-    private String name;
 
-    @Column(name = "`key`")
-    private String key;
+    @ManyToOne
+    @JoinColumn(name = "issue_id")
+    private Issue issue;
+
+
+    @ManyToOne
+    @JoinColumn(name= "issue_tag_id")
+    private IssueTag issueTag;
 }

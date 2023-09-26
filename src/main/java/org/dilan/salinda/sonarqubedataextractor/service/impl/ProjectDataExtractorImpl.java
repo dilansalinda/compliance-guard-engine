@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import static java.util.stream.LongStream.*;
+import static org.dilan.salinda.sonarqubedataextractor.util.Utils.findMaxPages;
 
 @Service
 @Slf4j
@@ -27,6 +28,7 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
     private final AppConfig appConfig;
     private final SonarQubeService sonarQubeService;
     private String Organization;
+    private String Authorization;
     private final ProjectRepository projectRepository;
     private final TagRepository tagRepository;
     private final ProjectTagRepository projectTagRepository;
@@ -44,16 +46,21 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
     @PostConstruct
     public void init() {
         this.Organization = appConfig.getOrganization();
+        this.Authorization = appConfig.getAuthorization();
     }
 
 
     @Override
     public void fetch() {
-        of(findMaxPages(sonarQubeService.searchProjects(Map.of("organization", Organization)).getPaging()))
+        of(findMaxPages(sonarQubeService.searchProjects(
+                Map.of("organization", Organization),
+                Map.of("authorization",Authorization)).getPaging()))
                 .forEach(
                         (page) -> {
                             List<ComponentsDTO> projectComponents =
-                                    sonarQubeService.searchProjects(Map.of("organization", Organization, "p", page, "ps", 500))
+                                    sonarQubeService.searchProjects(
+                                                    Map.of("organization", Organization, "p", page, "ps", 500),
+                                                    Map.of("authorization",Authorization))
                                             .getComponents();
                             Save(projectComponents);
                         }
@@ -79,9 +86,6 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
         });
     }
 
-    private Long findMaxPages(PagingDTO pagingDTO) {
-        return (pagingDTO.getTotal() + pagingDTO.getPageSize() - 1) / pagingDTO.getPageSize();
-    }
 
 
     @Transactional(readOnly = true)

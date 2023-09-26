@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     Optional<Project> findByNameAndKey(String name, String key);
+    Optional<Project> findByKey(String name);
 }

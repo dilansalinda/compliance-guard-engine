@@ -1,6 +1,7 @@
 package org.dilan.salinda.sonarqubedataextractor;
 
 import org.dilan.salinda.sonarqubedataextractor.config.AppConfig;
+import org.dilan.salinda.sonarqubedataextractor.service.IssueDataExtractor;
 import org.dilan.salinda.sonarqubedataextractor.service.impl.ProjectDataExtractorImpl;
 import org.dilan.salinda.sonarqubedataextractor.service.SonarQubeService;
 import org.springframework.boot.CommandLineRunner;
@@ -11,6 +12,8 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
+
+import java.util.Arrays;
 
 @SpringBootApplication
 public class Application {
@@ -37,8 +40,12 @@ public class Application {
     }
 
     @Bean
-    CommandLineRunner commandLineRunner(ProjectDataExtractorImpl projectDataExtractor) {
-        return args -> projectDataExtractor.fetch();
+    CommandLineRunner commandLineRunner(ProjectDataExtractorImpl projectDataExtractor, IssueDataExtractor issueDataExtractor) {
+//        return args -> projectDataExtractor.fetch();
+        return args -> issueDataExtractor.fetch(Arrays.asList("orgdev_dev-analyzer,"));
+
     }
+
+
 
 }

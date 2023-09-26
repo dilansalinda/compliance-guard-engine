@@ -8,10 +8,6 @@ import java.util.List;
 
 public interface ProjectDataExtractor extends BaseExtractor {
 
-    @Order(2)
     void fetch();
-
     void Save(List<ComponentsDTO> projects);
-
-
 }
