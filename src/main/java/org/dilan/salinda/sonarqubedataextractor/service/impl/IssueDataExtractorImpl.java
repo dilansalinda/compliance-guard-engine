@@ -37,7 +37,6 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
     private String authorization;
 
 
-
     public IssueDataExtractorImpl(AppConfig appConfig, SonarQubeService sonarQubeService, IssueRepository issueRepository, ProjectRepository projectRepository, OrganizationRepository organizationRepository, IssueTagsRepository issueTagsRepository, IssueTagRepository issueTagRepository) {
         this.appConfig = appConfig;
         this.sonarQubeService = sonarQubeService;
@@ -56,49 +55,47 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
     }
 
     @Override
-    public void fetch(List<String> projects) throws Throwable {
+    public void fetch(List<String> projects) {
 
         of(findMaxPages(sonarQubeService.searchIssues(
                 Map.of("organization", organization, "componentKeys", projects),
                 Map.of("authorization", authorization)).getPaging()))
                 .forEach(page ->
                 {
-                   List<IssuesDTO> issuesDTO = sonarQubeService.searchIssues(
-                           Map.of("organization", organization, "componentKeys", projects),
-                           Map.of("authorization", authorization)).getIssues();
+                    List<IssuesDTO> issuesDTO = sonarQubeService.searchIssues(
+                            Map.of("organization", organization, "componentKeys", projects),
+                            Map.of("authorization", authorization)).getIssues();
 
-                    try {
-                        save(issuesDTO);
-                    } catch (Throwable e) {
-                        throw new RuntimeException(e);
-                    }
+                    save(issuesDTO);
+
                 });
     }
 
     @Override
-    public void save(List<IssuesDTO> issues) throws Throwable {
-            issues.forEach((issueObj -> {
-                Issue issue = checkIssueExists(issueObj);
-                if (Objects.isNull(issue)) {
-                    issue = new Issue();
-                    BeanUtils.copyProperties(issueObj, issue);
-                    setProject(issueObj, issue);
-                    setOrganization(issueObj, issue);
-                    try {
-                        Long creationTimestamp = DateUtil.provideDateFormat().parse(issueObj.getCreationDate()).getTime();
-                        Long updateTimestamp = DateUtil.provideDateFormat().parse(issueObj.getCreationDate()).getTime();
+    public void save(List<IssuesDTO> issues) {
+        issues.forEach((issueObj -> {
+            Issue issue = checkIssueExists(issueObj);
+            if (Objects.isNull(issue)) {
+                issue = new Issue();
+                BeanUtils.copyProperties(issueObj, issue);
+                setProject(issueObj, issue);
+                setOrganization(issueObj, issue);
 
-                        issue.setTextRangeStartLine(issueObj.getTextRange().getStartLine());
-                        issue.setTextRangeEndLine(issueObj.getTextRange().getEndLine());
-                        issue.setTextRangeStartOffset(issueObj.getTextRange().getStartOffset());
-                        issue.setTextRangeEndOffset(issueObj.getTextRange().getEndOffset());
-                        issue.setCreationDate(creationTimestamp);
-                        issue.setUpdateDate(updateTimestamp);
-                        issue.setImpactsSeverity(issueObj.getImpacts().get(0).getSeverity());
-                        issue.setImpactsSoftwareQuality(issueObj.getImpacts().get(0).getSoftwareQuality());
-                    } catch (ParseException e) {
-                        throw new RuntimeException(e);
-                    }
+                Long creationTimestamp = null;
+                try {
+                    creationTimestamp = DateUtil.provideDateFormat().parse(issueObj.getCreationDate()).getTime();
+                    Long updateTimestamp = DateUtil.provideDateFormat().parse(issueObj.getCreationDate()).getTime();
+
+
+                    issue.setTextRangeStartLine(issueObj.getTextRange().getStartLine());
+                    issue.setTextRangeEndLine(issueObj.getTextRange().getEndLine());
+                    issue.setTextRangeStartOffset(issueObj.getTextRange().getStartOffset());
+                    issue.setTextRangeEndOffset(issueObj.getTextRange().getEndOffset());
+                    issue.setCreationDate(creationTimestamp);
+                    issue.setUpdateDate(updateTimestamp);
+                    issue.setImpactsSeverity(issueObj.getImpacts().get(0).getSeverity());
+                    issue.setImpactsSoftwareQuality(issueObj.getImpacts().get(0).getSoftwareQuality());
+
                     issueRepository.save(issue);
 
                     Issue finalIssue = issue;
@@ -106,11 +103,13 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
                         IssueTag issueTag = setTags(tagObj);
                         setIssueTags(issueTag, finalIssue);
                     });
-
-                } else {
-                    log.info("Issue ({}) already exists!! updating Issue", issue.getKey());
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
                 }
-            }));
+            } else {
+                log.info("Issue ({}) already exists!! updating Issue", issue.getKey());
+            }
+        }));
     }
 
     private void setIssueTags(IssueTag issueTag, Issue finalIssue) {
