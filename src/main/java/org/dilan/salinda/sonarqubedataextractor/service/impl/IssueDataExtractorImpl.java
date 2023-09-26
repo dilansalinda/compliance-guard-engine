@@ -2,8 +2,8 @@ package org.dilan.salinda.sonarqubedataextractor.service.impl;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.dilan.salinda.sonarqubedataextractor.DTO.IssuesDTO;
 import org.dilan.salinda.sonarqubedataextractor.config.AppConfig;
+import org.dilan.salinda.sonarqubedataextractor.dto.IssuesDTO;
 import org.dilan.salinda.sonarqubedataextractor.model.*;
 import org.dilan.salinda.sonarqubedataextractor.repository.*;
 import org.dilan.salinda.sonarqubedataextractor.service.IssueDataExtractor;

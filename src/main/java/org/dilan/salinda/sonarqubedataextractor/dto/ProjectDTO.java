@@ -1,6 +1,9 @@
-package org.dilan.salinda.sonarqubedataextractor.DTO;
+package org.dilan.salinda.sonarqubedataextractor.dto;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.List;

@@ -1,8 +1,8 @@
 package org.dilan.salinda.sonarqubedataextractor.service;
 
 
-import org.dilan.salinda.sonarqubedataextractor.DTO.IssueSearchDTO;
-import org.dilan.salinda.sonarqubedataextractor.DTO.ProjectDTO;
+import org.dilan.salinda.sonarqubedataextractor.dto.IssueSearchDTO;
+import org.dilan.salinda.sonarqubedataextractor.dto.ProjectDTO;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.GetExchange;

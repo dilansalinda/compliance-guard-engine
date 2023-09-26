@@ -1,6 +1,6 @@
 package org.dilan.salinda.sonarqubedataextractor.util;
 
-import org.dilan.salinda.sonarqubedataextractor.DTO.PagingDTO;
+import org.dilan.salinda.sonarqubedataextractor.dto.PagingDTO;
 
 public class Utils {
 

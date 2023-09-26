@@ -1,4 +1,4 @@
-package org.dilan.salinda.sonarqubedataextractor.DTO;
+package org.dilan.salinda.sonarqubedataextractor.dto;
 
 import lombok.Data;
 

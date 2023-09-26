@@ -1,6 +1,6 @@
 package org.dilan.salinda.sonarqubedataextractor.service;
 
-import org.dilan.salinda.sonarqubedataextractor.DTO.IssuesDTO;
+import org.dilan.salinda.sonarqubedataextractor.dto.IssuesDTO;
 
 import java.util.List;
 
