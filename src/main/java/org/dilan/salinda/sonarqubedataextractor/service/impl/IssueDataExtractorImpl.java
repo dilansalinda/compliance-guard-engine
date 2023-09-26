@@ -33,8 +33,8 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
     private final OrganizationRepository organizationRepository;
     private final IssueTagsRepository issueTagsRepository;
     private final IssueTagRepository issueTagRepository;
-    private String Organization;
-    private String Authorization;
+    private String organization;
+    private String authorization;
 
 
 
@@ -51,21 +51,21 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
     @Override
     @PostConstruct
     public void init() {
-        this.Organization = appConfig.getOrganization();
-        this.Authorization = appConfig.getAuthorization();
+        this.organization = appConfig.getOrganization();
+        this.authorization = appConfig.getAuthorization();
     }
 
     @Override
     public void fetch(List<String> projects) {
 
         of(findMaxPages(sonarQubeService.searchIssues(
-                Map.of("organization", Organization,"componentKeys",projects),
-                Map.of("authorization",Authorization)).getPaging()))
-                .forEach((page) ->
+                Map.of("organization", organization, "componentKeys", projects),
+                Map.of("authorization", authorization)).getPaging()))
+                .forEach(page ->
                 {
                    List<IssuesDTO> issuesDTO = sonarQubeService.searchIssues(
-                            Map.of("organization", Organization,"componentKeys",projects),
-                            Map.of("authorization",Authorization)).getIssues();
+                           Map.of("organization", organization, "componentKeys", projects),
+                           Map.of("authorization", authorization)).getIssues();
 
                     save(issuesDTO);
                 });
@@ -99,33 +99,39 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
 
                     Issue finalIssue = issue;
                     issueObj.getTags().forEach(tagObj -> {
-                        Optional<IssueTag> issueTagOptional = issueTagRepository.findByName(tagObj);
-                        IssueTag issueTag;
-                        if (issueTagOptional.isPresent()) {
-                            issueTag = issueTagOptional.get();
-                        } else {
-                            issueTag = new IssueTag();
-                            issueTag.setName(tagObj);
-                            issueTagRepository.save(issueTag);
-                        }
-                        Optional<IssueTags> issueTagsOptional = issueTagsRepository.findIssueTagsByIssueTagAndIssue(issueTag, finalIssue);
-                        if(issueTagsOptional.isPresent()) {
-                            log.info("Issue Tag ({}) already exists for Issue Key ({})!!", issueTag.getName(), finalIssue.getKey());
-                        } else {
-                            IssueTags issueTags = new IssueTags();
-                            issueTags.setIssueTag(issueTag);
-                            issueTags.setIssue(finalIssue);
-                            issueTagsRepository.save(issueTags);
-                        }
-
+                        IssueTag issueTag = setTags(tagObj);
+                        setIssueTags(issueTag, finalIssue);
                     });
-
-
 
                 } else {
                     log.info("Issue ({}) already exists!! updating Issue", issue.getKey());
                 }
             }));
+    }
+
+    private void setIssueTags(IssueTag issueTag, Issue finalIssue) {
+        Optional<IssueTags> issueTagsOptional = issueTagsRepository.findIssueTagsByIssueTagAndIssue(issueTag, finalIssue);
+        if (issueTagsOptional.isPresent()) {
+            log.info("Issue Tag ({}) already exists for Issue Key ({})!!", issueTag.getName(), finalIssue.getKey());
+        } else {
+            IssueTags issueTags = new IssueTags();
+            issueTags.setIssueTag(issueTag);
+            issueTags.setIssue(finalIssue);
+            issueTagsRepository.save(issueTags);
+        }
+    }
+
+    private IssueTag setTags(String tagObj) {
+        Optional<IssueTag> issueTagOptional = issueTagRepository.findByName(tagObj);
+        IssueTag issueTag;
+        if (issueTagOptional.isPresent()) {
+            issueTag = issueTagOptional.get();
+        } else {
+            issueTag = new IssueTag();
+            issueTag.setName(tagObj);
+            issueTagRepository.save(issueTag);
+        }
+        return issueTag;
     }
 
     private void setOrganization(IssuesDTO issueObj, Issue newIssue) {
