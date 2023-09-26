@@ -1,8 +1,6 @@
 package org.dilan.salinda.sonarqubedataextractor.service;
 
 import org.dilan.salinda.sonarqubedataextractor.DTO.ComponentsDTO;
-import org.dilan.salinda.sonarqubedataextractor.DTO.ProjectDTO;
-import org.springframework.core.annotation.Order;
 
 import java.util.List;
 
