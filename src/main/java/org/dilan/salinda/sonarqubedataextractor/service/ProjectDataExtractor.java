@@ -7,5 +7,6 @@ import java.util.List;
 public interface ProjectDataExtractor extends BaseExtractor {
 
     void fetch();
-    void Save(List<ComponentsDTO> projects);
+
+    void save(List<ComponentsDTO> projects);
 }

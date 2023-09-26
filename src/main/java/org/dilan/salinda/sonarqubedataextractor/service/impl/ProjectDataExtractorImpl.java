@@ -29,8 +29,8 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
 
     private final AppConfig appConfig;
     private final SonarQubeService sonarQubeService;
-    private String Organization;
-    private String Authorization;
+    private String organization;
+    private String authorization;
     private final ProjectRepository projectRepository;
     private final TagRepository tagRepository;
     private final ProjectTagRepository projectTagRepository;
@@ -49,24 +49,23 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
     @Override
     @PostConstruct
     public void init() {
-        this.Organization = appConfig.getOrganization();
-        this.Authorization = appConfig.getAuthorization();
+        this.organization = appConfig.getOrganization();
+        this.authorization = appConfig.getAuthorization();
     }
 
 
     @Override
     public void fetch() {
         of(findMaxPages(sonarQubeService.searchProjects(
-                Map.of("organization", Organization),
-                Map.of("authorization",Authorization)).getPaging()))
-                .forEach(
-                        (page) -> {
+                Map.of("organization", organization),
+                Map.of("authorization", authorization)).getPaging()))
+                .forEach(page -> {
                             List<ComponentsDTO> projectComponents =
                                     sonarQubeService.searchProjects(
-                                                    Map.of("organization", Organization, "p", page, "ps", 500),
-                                                    Map.of("authorization",Authorization))
+                                                    Map.of("organization", organization, "p", page, "ps", 500),
+                                                    Map.of("authorization", authorization))
                                             .getComponents();
-                            Save(projectComponents);
+                    save(projectComponents);
                         }
                 );
 
@@ -74,7 +73,7 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
 
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @Override
-    public void Save(List<ComponentsDTO> projects) {
+    public void save(List<ComponentsDTO> projects) {
 
         projects.forEach(componentsDTO -> {
             Optional<Project> project = projectRepository.findByNameAndKey(componentsDTO.getName(), componentsDTO.getKey());
@@ -89,7 +88,7 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
                 } else {
                     log.info("Unable to find Project ({}) organization ({})!!", project.get().getName(), componentsDTO.getOrganization());
                 }
-                List<Tag> tags = SaveTags(componentsDTO);
+                List<Tag> tags = saveTags(componentsDTO);
                 Project savedProject = projectRepository.save(newProject);
                 saveProjectTags(tags, savedProject);
             }
@@ -99,7 +98,7 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
 
 
     @Transactional(readOnly = true)
-    public List<Tag> SaveTags(ComponentsDTO componentsDTO) {
+    public List<Tag> saveTags(ComponentsDTO componentsDTO) {
         List<Tag> tagList = new ArrayList<>();
         componentsDTO.getTags().forEach((tag -> {
                     Tag dbTag = tagRepository.findByName(tag);

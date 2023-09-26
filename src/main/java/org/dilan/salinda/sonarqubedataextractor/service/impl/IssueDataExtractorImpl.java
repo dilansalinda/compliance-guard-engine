@@ -67,46 +67,37 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
                             Map.of("organization", Organization,"componentKeys",projects),
                             Map.of("authorization",Authorization)).getIssues();
 
-                   Save(issuesDTO);
+                    save(issuesDTO);
                 });
     }
 
     @Override
-    public void Save(List<IssuesDTO> issues) {
+    public void save(List<IssuesDTO> issues) {
             issues.forEach((issueObj -> {
                 Issue issue = checkIssueExists(issueObj);
                 if (Objects.isNull(issue)) {
-                    Issue newIssue = new Issue();
-                    BeanUtils.copyProperties(issueObj, newIssue);
-                    Optional<Project> projectOptional = projectRepository.findByKey(issueObj.getProject());
-                            if(projectOptional.isPresent()) {
-                                newIssue.setProject(projectOptional.get());
-                            } else {
-                                log.info("Error while finding Issue Project ({})", issueObj.getProject());
-                            }
-                    Optional<Organization> oraganizationOptional = organizationRepository.findByKey(issueObj.getOrganization());
-                            if(oraganizationOptional.isPresent()) {
-                                newIssue.setOrganization(oraganizationOptional.get());
-                            }else {
-                                log.info("Error while finding Issue Organization ({})", issueObj.getOrganization());
-                            }
+                    issue = new Issue();
+                    BeanUtils.copyProperties(issueObj, issue);
+                    setProject(issueObj, issue);
+                    setOrganization(issueObj, issue);
                     try {
                         Long creationTimestamp = DateUtil.provideDateFormat().parse(issueObj.getCreationDate()).getTime();
                         Long updateTimestamp = DateUtil.provideDateFormat().parse(issueObj.getCreationDate()).getTime();
 
-                        newIssue.setTextRangeStartLine(issueObj.getTextRange().getStartLine());
-                        newIssue.setTextRangeEndLine(issueObj.getTextRange().getEndLine());
-                        newIssue.setTextRangeStartOffset(issueObj.getTextRange().getStartOffset());
-                        newIssue.setTextRangeEndOffset(issueObj.getTextRange().getEndOffset());
-                        newIssue.setCreationDate(creationTimestamp);
-                        newIssue.setUpdateDate(updateTimestamp);
-                        newIssue.setImpactsSeverity(issueObj.getImpacts().get(0).getSeverity());
-                        newIssue.setImpactsSoftwareQuality(issueObj.getImpacts().get(0).getSoftwareQuality());
+                        issue.setTextRangeStartLine(issueObj.getTextRange().getStartLine());
+                        issue.setTextRangeEndLine(issueObj.getTextRange().getEndLine());
+                        issue.setTextRangeStartOffset(issueObj.getTextRange().getStartOffset());
+                        issue.setTextRangeEndOffset(issueObj.getTextRange().getEndOffset());
+                        issue.setCreationDate(creationTimestamp);
+                        issue.setUpdateDate(updateTimestamp);
+                        issue.setImpactsSeverity(issueObj.getImpacts().get(0).getSeverity());
+                        issue.setImpactsSoftwareQuality(issueObj.getImpacts().get(0).getSoftwareQuality());
                     } catch (ParseException e) {
                         throw new RuntimeException(e);
                     }
-                    issueRepository.save(newIssue);
+                    issueRepository.save(issue);
 
+                    Issue finalIssue = issue;
                     issueObj.getTags().forEach(tagObj -> {
                         Optional<IssueTag> issueTagOptional = issueTagRepository.findByName(tagObj);
                         IssueTag issueTag;
@@ -117,13 +108,13 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
                             issueTag.setName(tagObj);
                             issueTagRepository.save(issueTag);
                         }
-                        Optional<IssueTags> issueTagsOptional = issueTagsRepository.findIssueTagsByIssueTagAndIssue(issueTag,newIssue);
+                        Optional<IssueTags> issueTagsOptional = issueTagsRepository.findIssueTagsByIssueTagAndIssue(issueTag, finalIssue);
                         if(issueTagsOptional.isPresent()) {
-                            log.info("Issue Tag ({}) already exists for Issue Key ({})!!", issueTag.getName(), issue.getKey());
+                            log.info("Issue Tag ({}) already exists for Issue Key ({})!!", issueTag.getName(), finalIssue.getKey());
                         } else {
                             IssueTags issueTags = new IssueTags();
                             issueTags.setIssueTag(issueTag);
-                            issueTags.setIssue(newIssue);
+                            issueTags.setIssue(finalIssue);
                             issueTagsRepository.save(issueTags);
                         }
 
@@ -135,6 +126,24 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
                     log.info("Issue ({}) already exists!! updating Issue", issue.getKey());
                 }
             }));
+    }
+
+    private void setOrganization(IssuesDTO issueObj, Issue newIssue) {
+        Optional<Organization> oraganizationOptional = organizationRepository.findByKey(issueObj.getOrganization());
+        if (oraganizationOptional.isPresent()) {
+            newIssue.setOrganization(oraganizationOptional.get());
+        } else {
+            log.info("Error while finding Issue Organization ({})", issueObj.getOrganization());
+        }
+    }
+
+    private void setProject(IssuesDTO issueObj, Issue newIssue) {
+        Optional<Project> projectOptional = projectRepository.findByKey(issueObj.getProject());
+        if (projectOptional.isPresent()) {
+            newIssue.setProject(projectOptional.get());
+        } else {
+            log.info("Error while finding Issue Project ({})", issueObj.getProject());
+        }
     }
 
     private Issue checkIssueExists(IssuesDTO issue) {
