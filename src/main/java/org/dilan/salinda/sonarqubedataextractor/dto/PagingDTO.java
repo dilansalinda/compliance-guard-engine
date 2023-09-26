@@ -5,13 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.io.Serializable;
-
 @Getter
 @Setter
 @RequiredArgsConstructor
 @ToString
-public class PagingDTO implements Serializable {
+public class PagingDTO {
 
     Long pageIndex;
     Long pageSize;
