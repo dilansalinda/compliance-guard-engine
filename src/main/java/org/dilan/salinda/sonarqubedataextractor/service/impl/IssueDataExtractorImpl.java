@@ -74,6 +74,20 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
                 });
     }
 
+    private static void setIssueDetails(IssuesDTO issueObj, Issue issue) throws ParseException {
+        long creationTimestamp = DateUtil.provideDateFormat().parse(issueObj.getCreationDate()).getTime();
+        long updateTimestamp = DateUtil.provideDateFormat().parse(issueObj.getCreationDate()).getTime();
+
+        issue.setTextRangeStartLine(issueObj.getTextRange().getStartLine());
+        issue.setTextRangeEndLine(issueObj.getTextRange().getEndLine());
+        issue.setTextRangeStartOffset(issueObj.getTextRange().getStartOffset());
+        issue.setTextRangeEndOffset(issueObj.getTextRange().getEndOffset());
+        issue.setCreationDate(creationTimestamp);
+        issue.setUpdateDate(updateTimestamp);
+        issue.setImpactsSeverity(issueObj.getImpacts().get(0).getSeverity());
+        issue.setImpactsSoftwareQuality(issueObj.getImpacts().get(0).getSoftwareQuality());
+    }
+
     @Transactional
     @Override
     public void save(List<IssuesDTO> issues) {
@@ -85,20 +99,11 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
                 setProject(issueObj, issue);
                 setOrganization(issueObj, issue);
 
-                Long creationTimestamp = null;
                 try {
-                    creationTimestamp = DateUtil.provideDateFormat().parse(issueObj.getCreationDate()).getTime();
-                    Long updateTimestamp = DateUtil.provideDateFormat().parse(issueObj.getCreationDate()).getTime();
-
-
-                    issue.setTextRangeStartLine(issueObj.getTextRange().getStartLine());
-                    issue.setTextRangeEndLine(issueObj.getTextRange().getEndLine());
-                    issue.setTextRangeStartOffset(issueObj.getTextRange().getStartOffset());
-                    issue.setTextRangeEndOffset(issueObj.getTextRange().getEndOffset());
-                    issue.setCreationDate(creationTimestamp);
-                    issue.setUpdateDate(updateTimestamp);
-                    issue.setImpactsSeverity(issueObj.getImpacts().get(0).getSeverity());
-                    issue.setImpactsSoftwareQuality(issueObj.getImpacts().get(0).getSoftwareQuality());
+                    setIssueDetails(issueObj, issue);
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
 
                     issueRepository.save(issue);
 
@@ -107,11 +112,17 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
                         IssueTag issueTag = setTags(tagObj);
                         setIssueTags(issueTag, finalIssue);
                     });
+
+            } else {
+                log.info("Issue ({}) already exists!! updating Issue", issue.getKey());
+                BeanUtils.copyProperties(issueObj, issue);
+
+                try {
+                    setIssueDetails(issueObj, issue);
                 } catch (ParseException e) {
                     throw new RuntimeException(e);
                 }
-            } else {
-                log.info("Issue ({}) already exists!! updating Issue", issue.getKey());
+                issueRepository.save(issue);
             }
         }));
     }
