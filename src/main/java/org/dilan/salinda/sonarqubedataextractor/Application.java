@@ -1,5 +1,6 @@
 package org.dilan.salinda.sonarqubedataextractor;
 
+import org.apache.tomcat.websocket.Constants;
 import org.dilan.salinda.sonarqubedataextractor.config.AppConfig;
 import org.dilan.salinda.sonarqubedataextractor.model.Organization;
 import org.dilan.salinda.sonarqubedataextractor.repository.OrganizationRepository;
@@ -18,7 +19,6 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 @SpringBootApplication
 public class Application {
     private final AppConfig appConfig;
-
     private final OrganizationRepository organizationRepository;
 
     public Application(AppConfig appConfig, OrganizationRepository organizationRepository) {
@@ -33,8 +33,8 @@ public class Application {
     @Bean
     SonarQubeService sonarQubeService() {
         WebClient client = WebClient.builder()
-                .baseUrl("https://sonarcloud.io")
-                .defaultHeader("authorization",appConfig.getAuthorization())
+                .baseUrl(appConfig.getSonarqubeBaseURL())
+                .defaultHeader(Constants.AUTHORIZATION_HEADER_NAME, appConfig.getAuthorization())
                 .exchangeStrategies(ExchangeStrategies.builder().codecs(c -> c.defaultCodecs().enableLoggingRequestDetails(true)).build())
                 .build();
         HttpServiceProxyFactory factory = HttpServiceProxyFactory.builder(WebClientAdapter.forClient(client)).build();
@@ -44,7 +44,7 @@ public class Application {
 
     @Bean
     CommandLineRunner commandLineRunner(ProjectDataExtractorImpl projectDataExtractor, IssueDataExtractor issueDataExtractor) {
-        organizationRepository.save(new Organization(1, "dev", "orgdev"));
+        organizationRepository.save(new Organization(1, appConfig.getOrganizationName(), appConfig.getOrganizationKey()));
         projectDataExtractor.fetch();
         return args -> issueDataExtractor.fetch();
 

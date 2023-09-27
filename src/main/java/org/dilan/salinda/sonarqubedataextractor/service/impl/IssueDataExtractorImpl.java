@@ -2,6 +2,7 @@ package org.dilan.salinda.sonarqubedataextractor.service.impl;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.websocket.Constants;
 import org.dilan.salinda.sonarqubedataextractor.config.AppConfig;
 import org.dilan.salinda.sonarqubedataextractor.dto.IssuesDTO;
 import org.dilan.salinda.sonarqubedataextractor.model.*;
@@ -11,6 +12,7 @@ import org.dilan.salinda.sonarqubedataextractor.service.SonarQubeService;
 import org.dilan.salinda.sonarqubedataextractor.util.DateUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
 import java.util.List;
@@ -51,27 +53,29 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
     @Override
     @PostConstruct
     public void init() {
-        this.organization = appConfig.getOrganization();
+        this.organization = appConfig.getOrganizationKey();
         this.authorization = appConfig.getAuthorization();
     }
 
+    @Transactional
     @Override
     public void fetch() {
         List<String> projects = fetchPublicProjects();
         of(findMaxPages(sonarQubeService.searchIssues(
                 Map.of("organization", organization, "componentKeys", projects),
-                Map.of("authorization", authorization)).getPaging()))
+                Map.of(Constants.AUTHORIZATION_HEADER_NAME, authorization)).getPaging()))
                 .forEach(page ->
                 {
                     List<IssuesDTO> issuesDTO = sonarQubeService.searchIssues(
                             Map.of("organization", organization, "componentKeys", projects),
-                            Map.of("authorization", authorization)).getIssues();
+                            Map.of(Constants.AUTHORIZATION_HEADER_NAME, authorization)).getIssues();
 
                     save(issuesDTO);
 
                 });
     }
 
+    @Transactional
     @Override
     public void save(List<IssuesDTO> issues) {
         issues.forEach((issueObj -> {
@@ -113,7 +117,8 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
         }));
     }
 
-    private void setIssueTags(IssueTag issueTag, Issue finalIssue) {
+    @Transactional
+    public void setIssueTags(IssueTag issueTag, Issue finalIssue) {
         Optional<IssueTags> issueTagsOptional = issueTagsRepository.findIssueTagsByIssueTagAndIssue(issueTag, finalIssue);
         if (issueTagsOptional.isPresent()) {
             log.info("Issue Tag ({}) already exists for Issue Key ({})!!", issueTag.getName(), finalIssue.getKey());
@@ -125,7 +130,8 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
         }
     }
 
-    private IssueTag setTags(String tagObj) {
+    @Transactional
+    public IssueTag setTags(String tagObj) {
         Optional<IssueTag> issueTagOptional = issueTagRepository.findByName(tagObj);
         IssueTag issueTag;
         if (issueTagOptional.isPresent()) {
@@ -138,7 +144,8 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
         return issueTag;
     }
 
-    private void setOrganization(IssuesDTO issueObj, Issue newIssue) {
+    @Transactional
+    public void setOrganization(IssuesDTO issueObj, Issue newIssue) {
         Optional<Organization> oraganizationOptional = organizationRepository.findByKey(issueObj.getOrganization());
         if (oraganizationOptional.isPresent()) {
             newIssue.setOrganization(oraganizationOptional.get());
@@ -147,7 +154,8 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
         }
     }
 
-    private void setProject(IssuesDTO issueObj, Issue newIssue) {
+    @Transactional
+    public void setProject(IssuesDTO issueObj, Issue newIssue) {
         Optional<Project> projectOptional = projectRepository.findByKey(issueObj.getProject());
         if (projectOptional.isPresent()) {
             newIssue.setProject(projectOptional.get());
@@ -160,7 +168,8 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
         return issueRepository.findByKey(issue.getKey());
     }
 
-    private List<String> fetchPublicProjects() {
+    @Transactional(readOnly = true)
+    public List<String> fetchPublicProjects() {
         return projectRepository.findByVisibility("public")
                 .stream()
                 .filter(Optional::isPresent)

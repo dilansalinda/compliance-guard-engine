@@ -2,6 +2,7 @@ package org.dilan.salinda.sonarqubedataextractor.service.impl;
 
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.websocket.Constants;
 import org.dilan.salinda.sonarqubedataextractor.config.AppConfig;
 import org.dilan.salinda.sonarqubedataextractor.dto.ComponentsDTO;
 import org.dilan.salinda.sonarqubedataextractor.model.Project;
@@ -49,21 +50,21 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
     @Override
     @PostConstruct
     public void init() {
-        this.organization = appConfig.getOrganization();
+        this.organization = appConfig.getOrganizationKey();
         this.authorization = appConfig.getAuthorization();
     }
 
-
+    @Transactional
     @Override
     public void fetch() {
         of(findMaxPages(sonarQubeService.searchProjects(
                 Map.of("organization", organization),
-                Map.of("authorization", authorization)).getPaging()))
+                Map.of(Constants.AUTHORIZATION_HEADER_NAME, authorization)).getPaging()))
                 .forEach(page -> {
                             List<ComponentsDTO> projectComponents =
                                     sonarQubeService.searchProjects(
                                                     Map.of("organization", organization, "p", page, "ps", 500),
-                                                    Map.of("authorization", authorization))
+                                                    Map.of(Constants.AUTHORIZATION_HEADER_NAME, authorization))
                                             .getComponents();
                     save(projectComponents);
                         }
@@ -115,7 +116,8 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
         return tagList;
     }
 
-    private void saveProjectTags(List<Tag> tagList, Project project) {
+    @Transactional(readOnly = true)
+    public void saveProjectTags(List<Tag> tagList, Project project) {
         tagList.forEach(tag -> {
             ProjectTag projectTag = new ProjectTag();
             projectTag.setTag(tag);

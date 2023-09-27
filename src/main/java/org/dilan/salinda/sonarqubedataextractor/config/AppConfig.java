@@ -11,7 +11,12 @@ public class AppConfig {
     @Value("${authorization}")
     private String authorization;
 
-    @Value("${organization}")
-    private String organization;
+    @Value("${organization.name}")
+    private String organizationName;
 
+    @Value("${organization.key}")
+    private String organizationKey;
+
+    @Value("${sonarqube.base.url}")
+    private String sonarqubeBaseURL;
 }
