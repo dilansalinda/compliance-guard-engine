@@ -15,8 +15,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-import java.util.Arrays;
-
 @SpringBootApplication
 public class Application {
     private final AppConfig appConfig;
@@ -48,7 +46,7 @@ public class Application {
     CommandLineRunner commandLineRunner(ProjectDataExtractorImpl projectDataExtractor, IssueDataExtractor issueDataExtractor) {
         organizationRepository.save(new Organization(1, "dev", "orgdev"));
         projectDataExtractor.fetch();
-        return args -> issueDataExtractor.fetch(Arrays.asList("orgdev_dev-analyzer,"));
+        return args -> issueDataExtractor.fetch();
 
     }
 

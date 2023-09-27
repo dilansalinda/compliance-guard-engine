@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static java.util.stream.LongStream.of;
 import static org.dilan.salinda.sonarqubedataextractor.util.Utils.findMaxPages;
@@ -55,8 +56,8 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
     }
 
     @Override
-    public void fetch(List<String> projects) {
-
+    public void fetch() {
+        List<String> projects = fetchPublicProjects();
         of(findMaxPages(sonarQubeService.searchIssues(
                 Map.of("organization", organization, "componentKeys", projects),
                 Map.of("authorization", authorization)).getPaging()))
@@ -157,5 +158,14 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
 
     private Issue checkIssueExists(IssuesDTO issue) {
         return issueRepository.findByKey(issue.getKey());
+    }
+
+    private List<String> fetchPublicProjects() {
+        return projectRepository.findByVisibility("public")
+                .stream()
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(Project::getKey)
+                .collect(Collectors.toList());
     }
 }

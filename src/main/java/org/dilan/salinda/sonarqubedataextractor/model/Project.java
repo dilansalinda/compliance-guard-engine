@@ -14,7 +14,7 @@ import java.util.Set;
 public class Project  {
 
     @Id
-    @GeneratedValue(strategy=GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
@@ -26,8 +26,8 @@ public class Project  {
     private boolean isFavorite;
     private boolean isNew;
 
-    @OneToOne
-    Organization organization;
+    @ManyToOne
+    private Organization organization;
 
     @OneToMany(mappedBy = "project")
     private Set<ProjectTag> projectTags;

@@ -5,10 +5,15 @@ import org.dilan.salinda.sonarqubedataextractor.model.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
     Optional<Project> findByNameAndKey(String name, String key);
+
     Optional<Project> findByKey(String name);
+
+    List<Optional<Project>> findByVisibility(String visibility);
+
 }

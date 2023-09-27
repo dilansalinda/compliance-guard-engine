@@ -6,7 +6,7 @@ import java.util.List;
 
 public interface IssueDataExtractor extends BaseExtractor {
 
-    void fetch(List<String> projects);
+    void fetch();
 
     void save(List<IssuesDTO> projects);
 }
