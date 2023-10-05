@@ -58,7 +58,7 @@ jobs:
             -Dsonar.projectKey=orgdev_sonar-extractor
             -Dsonar.organization=orgdev
             -Dsonar.verbose=true
-            -Dsonar.projectBaseDir=././sonarqube-data-extractor/
+            -Dsonar.projectBaseDir=../../sonarqube-data-extractor
             # Comma-separated paths to directories containing main source files.
 
             # optional, default is project base directory
