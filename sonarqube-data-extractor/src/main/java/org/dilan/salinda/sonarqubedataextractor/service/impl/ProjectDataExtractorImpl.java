@@ -15,6 +15,7 @@ import org.dilan.salinda.sonarqubedataextractor.repository.TagRepository;
 import org.dilan.salinda.sonarqubedataextractor.service.ProjectDataExtractor;
 import org.dilan.salinda.sonarqubedataextractor.service.SonarQubeService;
 import org.springframework.beans.BeanUtils;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,6 +57,7 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
 
     @Transactional
     @Override
+    @Scheduled(fixedDelayString = "${data.extraction.in:3000}")
     public void fetch() {
         of(findMaxPages(sonarQubeService.searchProjects(
                 Map.of("organization", organization),

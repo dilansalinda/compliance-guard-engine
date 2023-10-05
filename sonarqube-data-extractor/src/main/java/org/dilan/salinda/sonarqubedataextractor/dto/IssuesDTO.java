@@ -16,6 +16,7 @@ public class IssuesDTO {
     private float line;
     private String hash;
     private IssueTextRangeDTO textRange;
+    private String resolution;
     private String status;
     private String message;
     private String effort;

@@ -33,6 +33,7 @@ public class Issue {
     private int textRangeStartOffset;
     private int textRangeEndOffset;
 
+    private String resolution;
     private String status;
     private String message;
     private String effort;
