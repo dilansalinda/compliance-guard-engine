@@ -39,7 +39,6 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
     private String organization;
     private String authorization;
 
-
     public IssueDataExtractorImpl(AppConfig appConfig, SonarQubeService sonarQubeService, IssueRepository issueRepository, ProjectRepository projectRepository, OrganizationRepository organizationRepository, IssueTagsRepository issueTagsRepository, IssueTagRepository issueTagRepository) {
         this.appConfig = appConfig;
         this.sonarQubeService = sonarQubeService;
