@@ -1,0 +1,12 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "none",
+      "installMaven": "false",
+      "installGradle": "true",
+      "gradleVersion":"8.1.1"
+    },
+    "ghcr.io/devcontainers-contrib/features/ant-sdkman:2": {}
+  }
+}
