@@ -1,0 +1,180 @@
+.divider:after,
+.divider:before {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #eee;
+}
+
+.h-custom {
+  height: calc(100% - 73px);
+}
+
+@media (max-width: 450px) {
+  .h-custom {
+    height: 100%;
+  }
+}
+#login-button {
+  background: #92E3A9;
+}
+
+#register-link {
+  color: #77bb8a;
+}
+
+svg#freepik_stories-developer-activity:not(.animated) .animable {
+  opacity: 0;
+}
+
+svg#freepik_stories-developer-activity.animated #el1p7eysdaqwc {
+  animation: 4s 1 forwards cubic-bezier(0.36, -0.01, 0.5, 1.38) fadeIn;
+  animation-delay: 0s;
+}
+
+svg#freepik_stories-developer-activity.animated #elw9cwp07ttd {
+  animation: 4s 1 forwards cubic-bezier(0.36, -0.01, 0.5, 1.38) fadeIn;
+  animation-delay: 2s;
+  opacity: 0;
+}
+
+svg#freepik_stories-developer-activity.animated #freepik--background-simple--inject-4 {
+  animation: 4s 1 forwards cubic-bezier(0.36, -0.01, 0.5, 1.38) fadeIn, 1.5s Infinite linear floating;
+  animation-delay: 0s, 4s;
+}
+
+svg#freepik_stories-developer-activity.animated #freepik--Lines--inject-4 {
+  animation: 1s 1 forwards ease-out zoomIn, 1.5s Infinite linear floating;
+  animation-delay: 0s, 1s;
+}
+
+svg#freepik_stories-developer-activity.animated #freepik--Shadow--inject-4 {
+  animation: 1s 1 forwards cubic-bezier(0.36, -0.01, 0.5, 1.38) slideRight;
+  animation-delay: 0s;
+}
+
+svg#freepik_stories-developer-activity.animated #freepik--Window--inject-4 {
+  animation: 1.4s 1 forwards linear zoomOut, 6s Infinite linear shake;
+  animation-delay: 0s, 2.9s;
+}
+
+svg#freepik_stories-developer-activity.animated #freepik--Graphics--inject-4 {
+  animation: 1.4s 1 forwards ease-out slideLeft, 3s Infinite linear heartbeat;
+  animation-delay: 0.3s, -0.3s;
+  opacity: 0;
+}
+
+svg#freepik_stories-developer-activity.animated #freepik--Character--inject-4 {
+  animation: 0.9s 1 forwards linear zoomIn, 1.5s Infinite linear wind;
+  animation-delay: 0s, 1.4s;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes floating {
+  0% {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+@keyframes zoomIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes slideRight {
+  0% {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes zoomOut {
+  0% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%, 50%, 70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%, 60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
+@keyframes slideLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes heartbeat {
+  0% {
+    transform: scale(1);
+  }
+  10% {
+    transform: scale(1.1);
+  }
+  30% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  60% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes wind {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(1deg);
+  }
+  75% {
+    transform: rotate(-1deg);
+  }
+}
