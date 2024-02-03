@@ -1,10 +1,12 @@
 package org.dilan.salinda.sonarqubedataextractor.service.impl;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Priority;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.websocket.Constants;
 import org.dilan.salinda.sonarqubedataextractor.config.AppConfig;
 import org.dilan.salinda.sonarqubedataextractor.dto.ComponentsDTO;
+import org.dilan.salinda.sonarqubedataextractor.model.Organization;
 import org.dilan.salinda.sonarqubedataextractor.model.Project;
 import org.dilan.salinda.sonarqubedataextractor.model.ProjectTag;
 import org.dilan.salinda.sonarqubedataextractor.model.Tag;
@@ -31,7 +33,7 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
 
     private final AppConfig appConfig;
     private final SonarQubeService sonarQubeService;
-    private String organization;
+    private String[] organization;
     private String authorization;
     private final ProjectRepository projectRepository;
     private final TagRepository tagRepository;
@@ -58,9 +60,10 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
     @Transactional
     @Override
     @Scheduled(fixedDelayString = "${data.extraction.in:3000}")
+    @Priority(1)
     public void fetch() {
-        of(findMaxPages(sonarQubeService.searchProjects(
-                Map.of("organization", organization),
+        Arrays.stream(organization).forEach(org -> of(findMaxPages(sonarQubeService.searchProjects(
+                Map.of("organization", org),
                 Map.of(Constants.AUTHORIZATION_HEADER_NAME, authorization)).getPaging()))
                 .forEach(page -> {
                             List<ComponentsDTO> projectComponents =
@@ -68,9 +71,9 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
                                                     Map.of("organization", organization, "p", page, "ps", 500),
                                                     Map.of(Constants.AUTHORIZATION_HEADER_NAME, authorization))
                                             .getComponents();
-                    save(projectComponents);
+                            save(projectComponents);
                         }
-                );
+                ));
 
     }
 
@@ -89,7 +92,8 @@ public class ProjectDataExtractorImpl implements ProjectDataExtractor {
                 if (organizationOptional.isPresent()) {
                     newProject.setOrganization(organizationOptional.get());
                 } else {
-                    log.info("Unable to find Project ({}) organization ({})!!", project.get().getName(), componentsDTO.getOrganization());
+                    organizationRepository.save(Organization.builder().key(componentsDTO.getOrganization()).build());
+                    log.info("Added ({}) Organization from properties", componentsDTO.getOrganization());
                 }
                 List<Tag> tags = saveTags(componentsDTO);
                 Project savedProject = projectRepository.save(newProject);

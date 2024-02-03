@@ -16,10 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.ParseException;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.stream.LongStream.of;
 import static org.dilan.salinda.sonarqubedataextractor.util.Utils.findMaxPages;
@@ -36,7 +33,7 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
     private final OrganizationRepository organizationRepository;
     private final IssueTagsRepository issueTagsRepository;
     private final IssueTagRepository issueTagRepository;
-    private String organization;
+    private String[] organization;
     private String authorization;
 
     public IssueDataExtractorImpl(AppConfig appConfig, SonarQubeService sonarQubeService, IssueRepository issueRepository, ProjectRepository projectRepository, OrganizationRepository organizationRepository, IssueTagsRepository issueTagsRepository, IssueTagRepository issueTagRepository) {
@@ -56,12 +53,11 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
         this.authorization = appConfig.getAuthorization();
     }
 
-    @Transactional
     @Override
-    @Scheduled(fixedDelayString = "${data.extraction.in:3000}")
+    @Scheduled(fixedDelayString = "${data.extraction.in:3000}", initialDelay = 1000)
     public void fetch() {
-        String projects = fetchPublicProjects();
-        of(findMaxPages(sonarQubeService.searchIssues(
+        String projects = this.fetchPublicProjects();
+        Arrays.stream(organization).forEach(org -> of(findMaxPages(sonarQubeService.searchIssues(
                 Map.of("organization", organization, "componentKeys", projects),
                 Map.of(Constants.AUTHORIZATION_HEADER_NAME, authorization)).getPaging()))
                 .forEach(page ->
@@ -72,7 +68,7 @@ public class IssueDataExtractorImpl implements IssueDataExtractor {
 
                     save(issuesDTO);
 
-                });
+                }));
     }
 
     private static void setIssueDetails(IssuesDTO issueObj, Issue issue) throws ParseException {
