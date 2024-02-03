@@ -15,7 +15,7 @@ public class AppConfig {
     private String organizationName;
 
     @Value("${organization.key}")
-    private String organizationKey;
+    private String[] organizationKey;
 
     @Value("${sonarqube.base.url}")
     private String sonarqubeBaseURL;
