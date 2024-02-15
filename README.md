@@ -22,8 +22,12 @@ best practices and enhancing the overall software development process.
 
 - **Integration:** Seamlessly integrate ComplianceGuardEngine into your development workflow using APIs and plugins.
 
-- **Dashboard:** Visualize code compliance metrics and trends through an intuitive dashboard, gaining insights into code
-  quality.
+- **Dashboard:** Visualize code compliance metrics and trends through an intuitive dashboard, gaining insights into code quality. Cloud Qunie is the first-generation Angular-based Dashboard for the Compliance Guard Engine solution, still under continuous development.
+
+> Note: You can check in the `admin-console` directory and simply run `npm i` and `npm start` commands to start the server.
+
+![Alt Text](admin-console/screenshots/QubeGenieV1.gif)
+
 
 ## Getting Started
 
