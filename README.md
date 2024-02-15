@@ -1,7 +1,5 @@
-[![SonarQube analysis](https://github.com/dilansalinda/compliance-guard-engine/actions/workflows/sonarqube.yml/badge.svg?branch=main)](https://github.com/dilansalinda/compliance-guard-engine/actions/workflows/sonarqube.yml)
-[![pages-build-deployment](https://github.com/dilansalinda/compliance-guard-engine/actions/workflows/pages/pages-build-deployment/badge.svg?branch=main&event=workflow_run)](https://github.com/dilansalinda/compliance-guard-engine/actions/workflows/pages/pages-build-deployment)
 
-
+[![Deploy static content to Pages](https://github.com/dilansalinda/compliance-guard-engine/actions/workflows/static.yml/badge.svg)](https://github.com/dilansalinda/compliance-guard-engine/actions/workflows/static.yml)
 # Compliance Guard Engine
 
 ![Compliance Guard Engine](Compliance-Guard-Engine.png)
