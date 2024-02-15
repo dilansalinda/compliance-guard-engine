@@ -25,11 +25,11 @@ Your feedback is valuable to us! If you have any suggestions, feature requests, 
 
 ## Code of Conduct
 
-Please note that by contributing to Compliance Guard Engine, you agree to abide by the project's [Code of Conduct](link-to-code-of-conduct). We expect all contributors to be respectful and considerate of others, fostering an inclusive and welcoming community.
+Please note that by contributing to Compliance Guard Engine, you agree to abide by the project's [Code of Conduct](https://github.com/dilansalinda/compliance-guard-engine/blob/main/CODE_OF_CONDUCT.md). We expect all contributors to be respectful and considerate of others, fostering an inclusive and welcoming community.
 
 ## License
 
-By contributing to Compliance Guard Engine, you agree to license your contributions under the [MIT License](link-to-license). Please see the [LICENSE](https://github.com/dilansalinda/compliance-guard-engine/blob/main/LICENSE) file for more information.
+By contributing to Compliance Guard Engine, you agree to license your contributions under the [MIT License]([link-to-license](https://github.com/dilansalinda/compliance-guard-engine/blob/main/LICENSE)). Please see the [LICENSE](https://github.com/dilansalinda/compliance-guard-engine/blob/main/LICENSE) file for more information.
 
 If you have any questions or need further assistance, please don't hesitate to contact us at [contact.dilansalinda@gmail.com](mailto:contact.dilansalinda@gmail.com).
 
