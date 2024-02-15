@@ -1,0 +1,11 @@
+version: 1.0.0
+
+services:
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=core'
+      - 'POSTGRES_PASSWORD=${password}'
+      - 'POSTGRES_USER=postgres'
+    ports:
+      - '5432'

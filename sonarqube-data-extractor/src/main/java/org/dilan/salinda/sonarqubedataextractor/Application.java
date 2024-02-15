@@ -37,7 +37,7 @@ public class Application {
                                 .codecs(c -> c.defaultCodecs()
                                         .enableLoggingRequestDetails(true)).build())
                 .build();
-        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builder(WebClientAdapter.forClient(client)).build();
+        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(client)).build();
         return factory.createClient(SonarQubeService.class);
 
     }
