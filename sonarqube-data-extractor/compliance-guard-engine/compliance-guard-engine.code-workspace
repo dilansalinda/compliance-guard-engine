@@ -1,0 +1,18 @@
+{
+    "folders": [
+        {
+            "name": "choreo-project-root",
+            "path": "."
+        },
+        {
+            "name": "sonarqube-data-extractor",
+            "path": "repos/dilansalinda/compliance-guard-engine"
+        }
+    ],
+    "metadata": {
+        "choreo": {
+            "projectID": "72f16faf-7464-436a-a538-151bfaaf683f",
+            "orgId": "25045"
+        }
+    }
+}
