@@ -5,7 +5,7 @@ services:
     image: 'postgres:latest'
     environment:
       - 'POSTGRES_DB=core'
-      - 'POSTGRES_PASSWORD=${password}'
+      - 'POSTGRES_PASSWORD=1314246'
       - 'POSTGRES_USER=postgres'
     ports:
       - '5432'
