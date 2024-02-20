@@ -47,6 +47,8 @@ Follow these steps to get started with ComplianceGuardEngine:
 
 ## Documentation
 
+![Component-Diagram](compliance-guard-engine-component-diagram.png)
+
 For comprehensive information on using and configuring ComplianceGuardEngine, please refer to
 the [Documentation](#link-to-documentation).
 
