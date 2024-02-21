@@ -1,0 +1,10 @@
+[package]
+org = "dilansalinda"
+name = "sonar_data_schduler"
+version = "0.1.0"
+distribution = "2201.8.4"
+
+[build-options]
+observabilityIncluded = true
+
+port = 8080
